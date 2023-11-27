@@ -177,9 +177,12 @@ fn string_to[T](a string) T {
 	$else $if T is u16 { return a.u16() }
 	$else $if T is i16 { return a.i16() }
 	$else $if T is u32 { return a.u32() }
-	$else $if T is i32 || T is int { return T(a.int()) }
-	$else $if T is u64 || T is usize { return T(a.u64()) }
-	$else $if T is i64 || T is isize { return T(a.i64()) }
+	$else $if T is i32 { return T(a.int()) }
+	$else $if T is int { return a.int() }
+	$else $if T is u64 { return a.u64() }
+	$else $if T is usize { return T(a.u64()) }
+	$else $if T is i64 { return a.i64() }
+	$else $if T is isize { return T(a.i64()) }
 	$else $if T is f32 { return a.f32() }
 	$else $if T is f64 { return a.f64() }
 	$else $if T is bool { return a.bool() }
