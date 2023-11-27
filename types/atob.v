@@ -9,6 +9,7 @@ module types
 // $int    -->  bool
 // $float  -->  $int
 // $float  -->  $float
+// $float  -->  $enum
 // $float  -->  bool
 // $enum   -->  $int
 // $enum   -->  $float
@@ -26,12 +27,14 @@ pub fn atob[A, B](a A) B {
 	$if B !is A { // TODO: remove this when the compiler bug is fixed
 		$if B !is string {
 			$if B !is $int {
-				$if B !is $float {
-					$if B !is $enum {
-						$if B !is bool  {
-							$if B !is $map {
-								$if B !is $array {
-									$compile_error('Incompatible type B')
+				$if B !is i32 {
+					$if B !is $float {
+						$if B !is $enum {
+							$if B !is bool  {
+								$if B !is $map {
+									$if B !is $array {
+										$compile_error('Incompatible type B')
+									}
 								}
 							}
 						}
@@ -42,10 +45,12 @@ pub fn atob[A, B](a A) B {
 	}
 	$if B is $int { // TODO: remove this when the compiler bug is fixed
 		$if A !is $int {
-			$if A !is $float {
-				$if A !is $enum {
-					$if A !is string {
-						$compile_error('Incompatible type A')
+			$if A !is i32 {
+				$if A !is $float {
+					$if A !is $enum {
+						$if A !is string {
+							$compile_error('Incompatible type A')
+						}
 					}
 				}
 			}
@@ -53,10 +58,12 @@ pub fn atob[A, B](a A) B {
 	}
 	$if B is $float {
 		$if A !is $int {
-			$if A !is $float {
-				$if A !is $enum {
-					$if A !is string {
-						$compile_error('Incompatible type A')
+			$if A !is i32 {
+				$if A !is $float {
+					$if A !is $enum {
+						$if A !is string {
+							$compile_error('Incompatible type A')
+						}
 					}
 				}
 			}
@@ -64,10 +71,12 @@ pub fn atob[A, B](a A) B {
 	}
 	$if B is $enum {
 		$if A !is $int {
-			$if A !is $float {
-				$if A !is $enum {
-					$if A !is string {
-						$compile_error('Incompatible type A')
+			$if A !is i32 {
+				$if A !is $float {
+					$if A !is $enum {
+						$if A !is string {
+							$compile_error('Incompatible type A')
+						}
 					}
 				}
 			}
@@ -75,10 +84,12 @@ pub fn atob[A, B](a A) B {
 	}
 	$if B is bool {
 		$if A !is $int {
-			$if A !is $float {
-				$if A !is $enum {
-					$if A !is string {
-						$compile_error('Incompatible type A')
+			$if A !is i32 {
+				$if A !is $float {
+					$if A !is $enum {
+						$if A !is string {
+							$compile_error('Incompatible type A')
+						}
 					}
 				}
 			}
@@ -103,8 +114,8 @@ pub fn atob[A, B](a A) B {
 		return a
 	} $else $if B is string {
 		return a.str()
-	} $else $if B is $int || B is $float || B is $enum || B is bool {
-		$if A is $int || A is $float || A is $enum { return unsafe { B(a) } }
+	} $else $if B is $int || B is i32 || B is $float || B is $enum || B is bool {
+		$if A is $int || A is i32 || A is $float || A is $enum { return unsafe { B(a) } }
 		$else $if A is string {
 			return string_to[B](a)
 		}
