@@ -31,7 +31,7 @@ pub fn atob[A, B](a A) B {
 				$if B !is i32 {
 					$if B !is $float {
 						$if B !is $enum {
-							$if B !is bool  {
+							$if B !is bool {
 								$if B !is $map {
 									$if B !is $array {
 										$compile_error('Incompatible type B')
@@ -122,25 +122,31 @@ pub fn atob[A, B](a A) B {
 	} $else $if B is string {
 		return a.str()
 	} $else $if B is $int || B is i32 || B is $float || B is $enum {
-		$if A is string { return string_to[B](a) }
-		$else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
+		$if A is string {
+			return string_to[B](a)
+		} $else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
 			$if B !is $array { // workaround for compiler bug
 				return unsafe { B(a) }
 			}
 		}
 	} $else $if B is bool {
-		$if A is string { return a.bool() }
-		$else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
+		$if A is string {
+			return a.bool()
+		} $else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
 			return usize(a) != 0
 		}
 	} $else $if B is $map && A is $map {
 		mut b := B{}
-		map_to_map(A(a) , mut b)
+		map_to_map(A(a), mut b)
 		return b
 	} $else $if B is $array_dynamic {
-		mut b := B{ len: a.len }
-		$if A is $array_dynamic  {
-			if a.len == 0 { return b }
+		mut b := B{
+			len: a.len
+		}
+		$if A is $array_dynamic {
+			if a.len == 0 {
+				return b
+			}
 			array_dynamic_to_array_dynamic(a, mut b)
 			return b
 		} $else $if A is $array_fixed {
@@ -186,28 +192,45 @@ fn map_to_map[A, B, X, Y](a map[A]B, mut out map[X]Y) {
 // string  -->  bool
 @[inline]
 fn string_to[T](a string) T {
-	$if T is string { return a }
-	$else $if T is u8 { return a.u8() }
-	$else $if T is i8 { return a.i8() }
-	$else $if T is u16 { return a.u16() }
-	$else $if T is i16 { return a.i16() }
-	$else $if T is u32 { return a.u32() }
-	$else $if T is i32 { return T(a.int()) }
-	$else $if T is int { return T(a.int()) }
-	$else $if T is u64 { return a.u64() }
-	$else $if T is usize { return T(a.u64()) }
-	$else $if T is i64 { return a.i64() }
-	$else $if T is isize { return T(a.i64()) }
-	$else $if T is f32 { return a.f32() }
-	$else $if T is f64 { return a.f64() }
-	$else $if T is bool { return a.bool() }
-	$else $if T is $enum {
+	$if T is string {
+		return a
+	} $else $if T is u8 {
+		return a.u8()
+	} $else $if T is i8 {
+		return a.i8()
+	} $else $if T is u16 {
+		return a.u16()
+	} $else $if T is i16 {
+		return a.i16()
+	} $else $if T is u32 {
+		return a.u32()
+	} $else $if T is i32 {
+		return T(a.int())
+	} $else $if T is int {
+		return T(a.int())
+	} $else $if T is u64 {
+		return a.u64()
+	} $else $if T is usize {
+		return T(a.u64())
+	} $else $if T is i64 {
+		return a.i64()
+	} $else $if T is isize {
+		return T(a.i64())
+	} $else $if T is f32 {
+		return a.f32()
+	} $else $if T is f64 {
+		return a.f64()
+	} $else $if T is bool {
+		return a.bool()
+	} $else $if T is $enum {
 		$for v in T.values {
 			if v.name == a {
 				return v.value
 			}
 		}
-	} $else $if T is $int || T is float { return T(0) }
+	} $else $if T is $int || T is float {
+		return T(0)
+	}
 	return T{}
 }
 

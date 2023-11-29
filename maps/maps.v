@@ -4,16 +4,18 @@ module maps
 pub fn merge_recursive[K, V](mut a map[K]V, b map[K]V) {
 	for k, v in b {
 		$if V is $map {
-			merge_recursive(a[k], v)
-		} $else { a[k] = v }
+			merge_recursive(mut a[k], v)
+		} $else {
+			a[k] = v
+		}
 	}
 }
 
 @[inline]
 pub fn merged_recursive[K, V](a map[K]V, b map[K]V) map[K]V {
 	mut out := a.clone()
-	merge_recursive(out)
-	return out	
+	merge_recursive(mut out, b)
+	return out
 }
 
 @[inline]
@@ -27,6 +29,5 @@ pub fn merge[K, V](mut a map[K]V, b map[K]V) {
 pub fn merged[K, V](a map[K]V, b map[K]V) map[K]V {
 	mut out := a.clone()
 	merge(out)
-	return out	
+	return out
 }
-
