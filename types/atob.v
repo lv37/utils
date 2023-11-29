@@ -20,6 +20,7 @@ module types
 // string  -->  $int
 // string  -->  $float
 // string  -->  $enum
+// string  -->  bool
 // map[A]B -->  map[X]Y
 // $array  -->  $array
 @[inline]
@@ -49,7 +50,9 @@ pub fn atob[A, B](a A) B {
 				$if A !is $float {
 					$if A !is $enum {
 						$if A !is string {
-							$compile_error('Incompatible type A')
+							$if A !is bool {
+								$compile_error('Incompatible type A')
+							}
 						}
 					}
 				}
@@ -62,7 +65,9 @@ pub fn atob[A, B](a A) B {
 				$if A !is $float {
 					$if A !is $enum {
 						$if A !is string {
-							$compile_error('Incompatible type A')
+							$if A !is bool {
+								$compile_error('Incompatible type A')
+							}
 						}
 					}
 				}
@@ -75,7 +80,9 @@ pub fn atob[A, B](a A) B {
 				$if A !is $float {
 					$if A !is $enum {
 						$if A !is string {
-							$compile_error('Incompatible type A')
+							$if A !is bool {
+								$compile_error('Incompatible type A')
+							}
 						}
 					}
 				}
@@ -114,13 +121,20 @@ pub fn atob[A, B](a A) B {
 		return a
 	} $else $if B is string {
 		return a.str()
-	} $else $if B is $int || B is i32 || B is $float || B is $enum || B is bool {
-		$if A is $int || A is i32 || A is $float || A is $enum { return unsafe { B(a) } }
-		$else $if A is string {
-			return string_to[B](a)
+	} $else $if B is $int || B is i32 || B is $float || B is $enum {
+		$if A is string { return string_to[B](a) }
+		$else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
+			return unsafe { B(a) }
+		}
+	} $else $if B is bool {
+		$if A is string { return a.bool() }
+		$else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
+			return usize(a) != 0
 		}
 	} $else $if B is $map && A is $map {
-		return map_to_map[A, B](a)
+		mut b := B{}
+		map_to_map(A(a) , mut b)
+		return b
 	} $else $if B is $array_dynamic {
 		mut b := B{ len: a.len }
 		$if A is $array_dynamic  {
@@ -140,39 +154,27 @@ pub fn atob[A, B](a A) B {
 	return B{}
 }
 
-// TODO: Redo this when the compiler becomes more stable
-fn map_to_map[A, B](a A) B {
-	$if A !is $map { $compile_error('A must be a \$map type') }
-	$if B !is $map { $compile_error('B must be a \$map type') }
-	b := B{}
-	return map_to_map_two(A(a), b)
-}
-
-fn map_to_map_two[A, B, X, Y](a map[A]B, _ map[X]Y) map[X]Y {
+@[inline]
+fn map_to_map[A, B, X, Y](a map[A]B, mut out map[X]Y) {
 	$if A is X {
 		$if B is Y {
-			return a
+			out = a
 		} $else {
-			mut out := map[X]Y{}
 			for k, v in a {
 				out[k] = atob[B, Y](v)
 			}
-			return out
 		}
 	} $else {
-		mut out := map[X]Y{}
 		$if B is Y {
 			for k, v in a {
 				out[atob[A, X](k)] = v
 			}
 		} $else {
 			for k, v in a {
-				out[atob[A, X](k)] = atob[B, Y](v)
+				out[atob[A, X](k)] = atob[B, Y](*(&B(&v)))
 			}
 		}
-		return out
 	}
-	return map[X]Y{}
 }
 
 // string  -->  $int
@@ -189,7 +191,7 @@ fn string_to[T](a string) T {
 	$else $if T is i16 { return a.i16() }
 	$else $if T is u32 { return a.u32() }
 	$else $if T is i32 { return T(a.int()) }
-	$else $if T is int { return a.int() }
+	$else $if T is int { return T(a.int()) }
 	$else $if T is u64 { return a.u64() }
 	$else $if T is usize { return T(a.u64()) }
 	$else $if T is i64 { return a.i64() }
