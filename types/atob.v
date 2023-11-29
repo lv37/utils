@@ -124,7 +124,9 @@ pub fn atob[A, B](a A) B {
 	} $else $if B is $int || B is i32 || B is $float || B is $enum {
 		$if A is string { return string_to[B](a) }
 		$else $if A is $int || A is i32 || A is $float || A is $enum || A is bool {
-			return unsafe { B(a) }
+			$if B !is $array { // workaround for compiler bug
+				return unsafe { B(a) }
+			}
 		}
 	} $else $if B is bool {
 		$if A is string { return a.bool() }
