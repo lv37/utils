@@ -2,6 +2,7 @@ module arrays
 
 // Convert a dynamic array into a fixed array
 // or change the length of a fixed array
+@[deprecated: 'Use `types.atob(a A) B` instead']
 pub fn fix_array[A, B](a A) B {
 	$if A !is $array {
 		$compile_error('A must be an array type')
@@ -19,6 +20,7 @@ pub fn fix_array[A, B](a A) B {
 }
 
 // Convert a fixed array into a dynamic array
+@[deprecated: 'Use `types.atob(a A) B` instead']
 pub fn unfix_array[A, B](a A) B {
 	$if A !is $array_fixed {
 		$compile_error('A must be a fixed array type')
