@@ -5,27 +5,6 @@ enum Abc {
 	one
 }
 
-// Convert type A to type B
-// Supports:
-// any     -->  string
-// $int    -->  $int
-// $int    -->  $float
-// $int    -->  $enum
-// $int    -->  bool
-// $float  -->  $int
-// $float  -->  $float
-// $float  -->  bool
-// $enum   -->  $int
-// $enum   -->  $float
-// $enum   -->  bool
-// bool    -->  $int
-// bool    -->  $float
-// bool    -->  $enum
-// string  -->  $int
-// string  -->  $float
-// string  -->  $enum
-// map[A]B -->  map[X]Y
-// $array  -->  $array
 fn test_atob_int_to_int() {
 	assert atob[usize, int](123) == int(123)
 	assert atob[isize, int](123) == int(123)
