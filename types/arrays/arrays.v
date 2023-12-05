@@ -1,7 +1,10 @@
 module arrays
 
-import v.ast
-
-pub fn element_type[T](_ []T) ast.Type {
-	return T.idx
+// return an error if the callback returns one
+pub fn map_opt[A, B](a []A, cb fn (v A) !B) ![]B {
+	mut b := []B{ cap: a.len }
+	for e in a {
+		b << cb(a)!
+	}
+	return b
 }
