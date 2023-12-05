@@ -23,7 +23,7 @@ module types
 // string  -->  bool
 // map[A]B -->  map[X]Y
 // $array  -->  $array
-@[inline]
+@[direct_array_access; inline]
 pub fn atob[A, B](a A) B {
 	$if B !is A { // TODO: remove this when the compiler bug is fixed
 		$if B !is string {
@@ -162,7 +162,11 @@ pub fn atob[A, B](a A) B {
 	return B{}
 }
 
-@[inline]
+pub fn atob_mut[A, B](a A, mut b B) {
+	b = atob[A, B](a)
+}
+
+@[direct_array_access; inline]
 fn map_to_map[A, B, X, Y](a map[A]B, mut out map[X]Y) {
 	$if A is X {
 		$if B is Y {
@@ -179,7 +183,7 @@ fn map_to_map[A, B, X, Y](a map[A]B, mut out map[X]Y) {
 			}
 		} $else {
 			for k, v in a {
-				out[atob[A, X](k)] = atob[B, Y](*(&B(&v)))
+				out[atob[A, X](k)] = atob[B, Y](v)
 			}
 		}
 	}
