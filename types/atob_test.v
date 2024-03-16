@@ -218,5 +218,5 @@ fn test_atob_map_to_map() {
 	b[456] = '2'
 	b[789] = '3'
 	assert atob[map[string]int, map[int]string](a) == b
-	// assert atob[map[int]string, map[string]int](b) == a // TODO: uncomment when https://github.com/vlang/v/issues/20106 is fixed
+	// assert atob[map[int]string, map[string]int](b) == a // compiler bug
 }

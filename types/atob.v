@@ -89,19 +89,19 @@ pub fn atob[A, B](a A) B {
 			}
 		}
 	}
-	$if B is bool {
-		$if A !is $int {
-			$if A !is i32 {
-				$if A !is $float {
-					$if A !is $enum {
-						$if A !is string {
-							$compile_error('Incompatible type A')
-						}
-					}
-				}
-			}
-		}
-	}
+	// $if B is bool {
+	// 	$if A !is $int {
+	// 		$if A !is i32 {
+	// 			$if A !is $float {
+	// 				$if A !is $enum {
+	// 					$if A !is string {
+	// 						$compile_error('Incompatible type A')
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 	$if B is $array_dynamic { // TODO: remove this when the compiler bug is fixed
 		$if A !is $array_dynamic {
 			$if A !is $array_fixed {
@@ -155,7 +155,8 @@ pub fn atob[A, B](a A) B {
 		}
 	} $else $if B is $array_fixed {
 		mut b := B{}
-		d := b[0]
+		z := 0
+		d := b[z]
 		array_to_array_fixed(a, mut b, d)
 		return b
 	}
