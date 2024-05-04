@@ -186,6 +186,7 @@ pub fn (mut o Scanner) next_char() !u8 {
 
 @[minify; params]
 pub struct NextStringCfg {
+pub:
 	end_offset   int
 	error_on_eof bool
 }
