@@ -2,11 +2,10 @@ module scanner
 
 import io
 import os
-import v.debug
 
 struct SeekReader {
 mut:
-	reader    io.Reader
+	reader    io.Reader = unsafe { io.Reader(nil) }
 	read_data []u8       = []u8{cap: 1024 * 512}
 	read_fn   fn (mut io.Reader, mut []u8) !int = unsafe { nil }
 	eof       bool
