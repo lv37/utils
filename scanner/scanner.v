@@ -69,8 +69,10 @@ pub:
 pub fn Scanner.new[T](r T, cfg ScannerCfg) &Scanner {
 	$if T !is ReadSeek {
 		$if T !is io.Reader {
-			$if T !is Scannable {
-				$compile_error('Incompatible type T')
+			$if T !is os.Process {
+				$if T !is Scannable {
+					$compile_error('Incompatible type T')
+				}
 			}
 		}
 	}
@@ -86,7 +88,9 @@ pub fn Scanner.new[T](r T, cfg ScannerCfg) &Scanner {
 			r: ReadSeek(SeekReader.new(reader: io.Reader(r)))
 		})
 	} $else $if T is os.Process {
-		a = ProcessReader{ process: r }
+		a = Scannable(FlushNothing{
+			r: ReadSeek(SeekReader.new(reader: ProcessReader{ process: r }))
+		})
 	} $else {
 		a = Scannable(os.File{})
 	}
