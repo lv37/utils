@@ -2,10 +2,11 @@ module scanner
 
 import io
 import os
+import v.debug
 
 struct SeekReader {
 mut:
-	reader    &io.Reader = unsafe { nil }
+	reader    io.Reader
 	read_data []u8       = []u8{cap: 1024 * 512}
 	read_fn   fn (mut io.Reader, mut []u8) !int = unsafe { nil }
 	eof       bool
@@ -23,8 +24,8 @@ mut:
 
 fn SeekReader.new(cfg SeekReaderCfg) SeekReader {
 	mut out := SeekReader{}
-	if t := cfg.reader {
-		out.reader = &t
+	if cfg.reader != none {
+		out.reader = cfg.reader or { panic('never') }
 		out.read_fn = fn (mut o io.Reader, mut buf []u8) !int {
 			return o.read(mut buf)
 		}
@@ -52,7 +53,7 @@ fn (mut o SeekReader) read(mut buf []u8) !int {
 				o.pos++
 			}
 			mut b := []u8{len: o.read_data.len - o.pos}
-			z := o.read_fn(mut o, mut buf) or { return i }
+			z := o.read_fn(mut o.reader, mut buf) or { return i }
 			for j in 0 .. z {
 				buf[i + j] = b[j]
 			}
@@ -63,7 +64,7 @@ fn (mut o SeekReader) read(mut buf []u8) !int {
 			return buf.len
 		}
 	}
-	s := o.read_fn(mut o, mut buf)!
+	s := o.read_fn(mut o.reader, mut buf)!
 	o.pos += buf.len
 	return s
 }
@@ -77,7 +78,7 @@ fn (mut o SeekReader) seek(pos i64, mode os.SeekMode) ! {
 	o.pos = p
 	if p > o.read_data.len {
 		mut buf := []u8{len: p - o.read_data.len}
-		o.read_fn(mut o, mut buf)!
+		o.read_fn(mut o.reader, mut buf)!
 		o.read_data << buf
 	}
 }
