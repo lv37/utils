@@ -1,4 +1,6 @@
 module scanner
+import os
+import io
 
 struct ProcessReader {
 	mut:
