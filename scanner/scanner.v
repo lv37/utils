@@ -82,12 +82,11 @@ pub fn Scanner.new[T](r T, cfg ScannerCfg) &Scanner {
 			r: ReadSeek(r)
 		})
 	} $else $if T is io.Reader {
-		z := io.Reader(r)
 		a = Scannable(FlushNothing{
-			r: ReadSeek(SeekReader{
-				reader: &z
-			})
+			r: ReadSeek(SeekReader.new(reader: io.Reader(r)))
 		})
+	} $else $if T is os.Process {
+		a = ProcessReader{ process: r }
 	} $else {
 		a = Scannable(os.File{})
 	}
