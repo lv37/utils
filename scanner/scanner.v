@@ -14,7 +14,7 @@ mut:
 
 struct FlushNothing {
 mut:
-	r ReadSeek
+	r &ReadSeek
 }
 
 @[inline]
@@ -42,7 +42,12 @@ mut:
 	tell() !i64
 }
 
-@[heap; noinit]
+interface Process {
+mut:
+	stdout_slurp() string
+}
+
+@[heap; minify; noinit]
 pub struct Scanner {
 	size_limit int = 1024 * 1024 * 1
 mut:
@@ -64,35 +69,77 @@ pub:
 	size_limit int = 1024 * 1024 * 1
 }
 
-// Accepts os.File or a file path string
+interface Any {}
+
+// Accepts Scannable, io.Reader,
 @[inline]
-pub fn Scanner.new[T](r T, cfg ScannerCfg) &Scanner {
+pub fn Scanner.new[T](mut r T, cfg ScannerCfg) &Scanner {
 	$if T !is ReadSeek {
 		$if T !is io.Reader {
-			$if T !is os.Process {
+			$if T !is Process {
 				$if T !is Scannable {
 					$compile_error('Incompatible type T')
 				}
 			}
 		}
 	}
-	mut a := Scannable(os.File{})
-	$if T is Scannable {
-		a = Scannable(r)
-	} $else $if T is ReadSeek {
-		Scannable(FlushNothing{
-			r: ReadSeek(r)
-		})
-	} $else $if T is io.Reader {
-		a = Scannable(FlushNothing{
-			r: ReadSeek(SeekReader.new(reader: io.Reader(r)))
-		})
-	} $else $if T is os.Process {
-		a = Scannable(FlushNothing{
-			r: ReadSeek(SeekReader.new(reader: ProcessReader{ process: r }))
-		})
+	$if T is $interface {
+		return Scanner.new_wrapped[T](mut r, cfg)
 	} $else {
-		a = Scannable(os.File{})
+		return Scanner.new_wrapped_any[T](mut r, cfg)
+	}
+}
+
+@[inline]
+fn Scanner.new_wrapped[T](mut r T, cfg ScannerCfg) &Scanner {
+	mut a := Scannable(unsafe { nil })
+	$if T is Scannable {
+		a = r
+	} $else $if T is ReadSeek {
+		a = FlushNothing{
+			r: r
+		}
+	} $else $if T is io.Reader {
+		a = FlushNothing{
+			r: &ReadSeek(SeekReader.new(reader: &io.Reader(r)))
+		}
+	} $else $if T is Process {
+		a = FlushNothing{
+			r: &ReadSeek(SeekReader.new(
+				reader: &ProcessReader{
+					process: r
+				}
+			))
+		}
+	}
+	mut s := &Scanner{
+		reader: a
+	}
+	s.char_iter.scanner = s
+	return s
+}
+
+@[inline]
+fn Scanner.new_wrapped_any[T](mut r Any, cfg ScannerCfg) &Scanner {
+	mut a := Scannable(unsafe { nil })
+	$if T is Scannable {
+		a = r as T
+	} $else $if T is ReadSeek {
+		a = FlushNothing{
+			r: &(r as T)
+		}
+	} $else $if T is io.Reader {
+		a = FlushNothing{
+			r: &ReadSeek(SeekReader.new(reader: &(r as T)))
+		}
+	} $else $if T is Process {
+		a = FlushNothing{
+			r: &ReadSeek(SeekReader.new(
+				reader: &ProcessReader{
+					process: &(r as T)
+				}
+			))
+		}
 	}
 	mut s := &Scanner{
 		reader: a

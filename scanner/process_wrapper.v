@@ -1,11 +1,11 @@
 module scanner
-import os
+
 import io
 
 struct ProcessReader {
-	mut:
-	process os.Process
-	red []u8
+mut:
+	process &Process
+	red     []u8
 }
 
 @[inline]
@@ -22,14 +22,16 @@ fn (mut pr ProcessReader) read(mut buf []u8) !int {
 	}
 	bytes := pr.process.stdout_slurp().bytes()
 	if pr.red.len == 0 {
-		if bytes.len == 0 { return io.Eof{} }
+		if bytes.len == 0 {
+			return io.Eof{}
+		}
 		if bytes.len == buf.len {
 			buf = bytes.clone()
 		} else if bytes.len > buf.len {
 			buf = bytes[0..buf.len].clone()
 			pr.red = bytes[buf.len..bytes.len].clone()
 		} else if bytes.len < buf.len {
-			for i in 0..bytes.len {
+			for i in 0 .. bytes.len {
 				buf[i] = bytes[i]
 			}
 		}
@@ -41,18 +43,18 @@ fn (mut pr ProcessReader) read(mut buf []u8) !int {
 		buf = pr.red.clone()
 		pr.red = []
 	}
-	for i in 0..pr.red.len {
+	for i in 0 .. pr.red.len {
 		buf[i] = pr.red[i]
 	}
 	len := buf.len - pr.red.len
 	if bytes.len > len {
-		for i in pr.red.len..len {
+		for i in pr.red.len .. len {
 			buf[i] = bytes[i]
 		}
 		pr.red = []
 		return buf.len
 	} else {
-		for i in pr.red.len..len {
+		for i in pr.red.len .. len {
 			buf[i] = bytes[i]
 		}
 		s := pr.red.len + bytes.len

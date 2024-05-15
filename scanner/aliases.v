@@ -5,28 +5,32 @@ import io
 
 @[inline]
 pub fn stdin(cfg ScannerCfg) &Scanner {
-	return Scanner.new(os.stdin(), cfg)
+	mut f := os.stdin()
+	return Scanner.new(mut f, cfg)
 }
 
 @[inline]
 pub fn stdout(cfg ScannerCfg) &Scanner {
-	return Scanner.new(os.stdout(), cfg)
+	mut f := os.stdout()
+	return Scanner.new(mut f, cfg)
 }
 
 @[inline]
 pub fn stderr(cfg ScannerCfg) &Scanner {
-	return Scanner.new(os.stderr(), cfg)
+	mut f := os.stderr()
+	return Scanner.new(mut f, cfg)
 }
 
 @[inline]
-pub fn reader(r io.Reader, cfg ScannerCfg) &Scanner {
-	return Scanner.new(r, cfg)
+pub fn reader(mut r io.Reader, cfg ScannerCfg) &Scanner {
+	return Scanner.new(mut r, cfg)
 }
 
 @[inline]
 pub fn file[T](t T, cfg ScannerCfg) !&Scanner {
 	$if T is string {
-		return Scanner.new(os.open(t)!, cfg)
+		mut f := os.open(t)!
+		return Scanner.new(mut f, cfg)
 	} $else $if T is io.Reader {
 		return Scanner.new(t, cfg)
 	} $else {
@@ -36,8 +40,9 @@ pub fn file[T](t T, cfg ScannerCfg) !&Scanner {
 
 @[inline]
 pub fn text(t string, _ ScannerCfg) &Scanner {
+	mut a := SeekReader.new(read_data: t.bytes())
 	mut s := &Scanner{
-		reader: FlushNothing{SeekReader.new(read_data: t.bytes())}
+		reader: &FlushNothing{&a}
 	}
 	s.char_iter.scanner = s
 	return s

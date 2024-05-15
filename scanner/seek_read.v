@@ -5,7 +5,7 @@ import os
 
 struct SeekReader {
 mut:
-	reader    io.Reader = unsafe { io.Reader(nil) }
+	reader    &io.Reader = unsafe { nil }
 	read_data []u8       = []u8{cap: 1024 * 512}
 	read_fn   fn (mut io.Reader, mut []u8) !int = unsafe { nil }
 	eof       bool
@@ -15,16 +15,16 @@ mut:
 @[params]
 struct SeekReaderCfg {
 mut:
-	reader    ?io.Reader
-	read_data []u8 = []u8{cap: 1024 * 512}
+	reader    &io.Reader = unsafe { nil }
+	read_data []u8       = []u8{cap: 1024 * 512}
 	read_fn   fn (mut []u8) !int = unsafe { nil }
 	pos       int
 }
 
 fn SeekReader.new(cfg SeekReaderCfg) SeekReader {
 	mut out := SeekReader{}
-	if cfg.reader != none {
-		out.reader = cfg.reader or { panic('never') }
+	if cfg.reader != unsafe { nil } {
+		out.reader = cfg.reader
 		out.read_fn = fn (mut o io.Reader, mut buf []u8) !int {
 			return o.read(mut buf)
 		}
