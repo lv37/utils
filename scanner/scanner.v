@@ -211,7 +211,7 @@ pub fn (mut o Scanner) tell_end() !i64 {
 // alias for o.seek(o.read_data.len)!
 @[inline]
 pub fn (mut o Scanner) seek_end(pos i64) ! {
-	o.seek(pos, .end)!
+	o.reader.seek(pos, .end)!
 }
 
 // alias for o.seek(0)!
