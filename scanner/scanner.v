@@ -174,7 +174,7 @@ pub fn (mut o Scanner) flush() {
 @[inline]
 pub fn (mut o Scanner) end() !i64 {
 	current_pos := o.reader.tell()!
-	o.seek(0, .end)!
+	o.seek_end(0)!
 	end_pos := o.reader.tell()!
 	o.seek(current_pos, .start)
 	return end_pos
@@ -202,7 +202,7 @@ pub fn (mut o Scanner) tell() i64 {
 @[inline]
 pub fn (mut o Scanner) tell_end() !i64 {
 	current_pos := o.reader.tell()!
-	o.seek(0, .end)!
+	o.seek_end(0)!
 	end_pos := o.reader.tell()!
 	o.seek(current_pos, .start)
 	return end_pos - current_pos
@@ -210,8 +210,8 @@ pub fn (mut o Scanner) tell_end() !i64 {
 
 // alias for o.seek(o.read_data.len)!
 @[inline]
-pub fn (mut o Scanner) seek_end() ! {
-	o.seek(0, .end)!
+pub fn (mut o Scanner) seek_end(pos i64) ! {
+	o.seek(pos, .end)!
 }
 
 // alias for o.seek(0)!
