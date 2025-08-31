@@ -71,8 +71,8 @@ fn (mut o SeekReader) read(mut buf []u8) !int {
 fn (mut o SeekReader) seek(pos i64, mode os.SeekMode) ! {
 	p := match mode {
 		.start { int(pos) }
-		.current { o.pos + pos }
-		.end { o.read_data.len + pos }
+		.current { o.pos + int(pos) }
+		.end { o.read_data.len + int(pos) }
 	}
 	o.pos = p
 	if p > o.read_data.len {
