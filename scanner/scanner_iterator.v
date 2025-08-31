@@ -6,7 +6,7 @@ mut:
 }
 
 fn (mut sci ScannerCharIterator) next() ?u8 {
-	return sci.scanner.next_char() or { none }
+	return sci.scanner.next_char() or { return none }
 }
 
 struct ScannerNumberIterator[T] {
